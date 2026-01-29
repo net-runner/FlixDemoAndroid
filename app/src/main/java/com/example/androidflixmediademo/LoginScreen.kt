@@ -36,8 +36,8 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
     LaunchedEffect(Unit) {
         val prefs = context.dataStore.data.first()
-        username = prefs[USERNAME_KEY] ?: "flixmediaqa"
-        password = prefs[PASSWORD_KEY] ?: "FlixQa99&$"
+        username = prefs[USERNAME_KEY] ?: ""
+        password = prefs[PASSWORD_KEY] ?: ""
     }
 
     Column(
