@@ -109,11 +109,6 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
                 scope.launch {
                     try {
-                        context.dataStore.edit { settings ->
-                            settings[USERNAME_KEY] = username
-                            settings[PASSWORD_KEY] = password
-                            settings[IS_LOGGED_IN] = true
-                        }
 
                         withContext(Dispatchers.IO) {
                             FlixMedia.initialize(
@@ -122,6 +117,14 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                                 password = password,
                             )
                         }
+
+                        context.dataStore.edit { settings ->
+                            settings[USERNAME_KEY] = username
+                            settings[PASSWORD_KEY] = password
+                            settings[IS_LOGGED_IN] = true
+                        }
+
+
 
                         onLoginSuccess()
                     } catch (e: Exception) {
