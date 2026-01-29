@@ -19,7 +19,6 @@ data class ProductFormState(
     val currency: String = "USD"
 )
 
-private val Context.dataStore by preferencesDataStore(name = "product_prefs")
 
 class ProductPreferenceManager(private val context: Context) {
     companion object {

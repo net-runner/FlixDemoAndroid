@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -19,9 +20,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.flixmedia.flixmediasdk.FlixMedia
 
-private val Context.dataStore by preferencesDataStore(name = "settings")
-private val USERNAME_KEY = stringPreferencesKey("username")
-private val PASSWORD_KEY = stringPreferencesKey("password")
+val Context.dataStore by preferencesDataStore(name = "settings")
+val USERNAME_KEY = stringPreferencesKey("username")
+val PASSWORD_KEY = stringPreferencesKey("password")
+
+val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
 
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit) {
@@ -109,6 +112,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                         context.dataStore.edit { settings ->
                             settings[USERNAME_KEY] = username
                             settings[PASSWORD_KEY] = password
+                            settings[IS_LOGGED_IN] = true
                         }
 
                         withContext(Dispatchers.IO) {

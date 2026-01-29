@@ -21,18 +21,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.net.URLDecoder
 
 class MainActivity : ComponentActivity() {
@@ -66,9 +71,20 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
 
 @Composable
 fun AppNavigation() {
+    val context = LocalContext.current
     val navController = rememberNavController()
+    val scope = rememberCoroutineScope()
 
-    NavHost(navController = navController, startDestination = Screen.Login.route) {
+    val isLoggedIn by context.dataStore.data
+        .map { it[IS_LOGGED_IN] ?: false }
+        .collectAsState(initial = null)
+
+    if (isLoggedIn == null) return
+
+    NavHost(
+        navController = navController,
+        startDestination = if (isLoggedIn == true) Screen.Main.route else Screen.Login.route
+    ) {
         composable(Screen.Login.route) {
             LoginScreen(onLoginSuccess = {
                 navController.navigate(Screen.Main.route) {
@@ -79,8 +95,11 @@ fun AppNavigation() {
 
         composable(Screen.Main.route) {
             MainTabNavigator(onLogout = {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Main.route) { inclusive = true }
+                scope.launch {
+                    context.dataStore.edit { it[IS_LOGGED_IN] = false }
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Main.route) { inclusive = true }
+                    }
                 }
             })
         }
